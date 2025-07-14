@@ -1,0 +1,11 @@
+.masked {
+  color: transparent !important;
+  position: relative;
+}
+
+.masked::before {
+  content: "*****";
+  color: white;
+  position: absolute;
+  pointer-events: none;
+}
