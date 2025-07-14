@@ -42,10 +42,14 @@ const TAGS = [
 const HIDE_DIGIT = '•';
 const REACT_VIRTUALIZED_GRID = 'ReactVirtualized__Grid__innerScrollContainer';
 const MESSAGE_VIEW_SCROLL_INNER = 'message-view__scroll__inner';
+const REL = 'rel';
+const MESSAGE_VIEW = 'message-view';
+const CHAT_CONTENT = 'chat-content';
+const BLOCK_DATE = 'block-date';
 
 const MSG_ITEM = '.msg-item';
 const TRUNCATE = '.truncate';
-const MESSAGE_CONTENT_WRAPPER = '.message-content-wrapper';
+const MESSAGE_CONTENT_WRAPPER = 'message-content-wrapper';
 const SPAN_TEXT = 'span.text';
 
 const CONV_ITEM_TITLE_NAME = 'conv-item-title__name';
@@ -80,17 +84,30 @@ function processAddedNodes(addedNodes) {
 
 function processTargetNode(node) {
 	if (node) {
-		if (node.classList && (
-			node.classList.contains(REACT_VIRTUALIZED_GRID)
-			|| node.classList.contains(MESSAGE_VIEW_SCROLL_INNER))) {
-			processNodeElement(node);
+		if (node.classList) {
+			if (node.classList.contains(REL)
+				|| node.classList.contains(MESSAGE_VIEW)
+				|| node.classList.contains(CHAT_CONTENT)
+				|| node.classList.contains(BLOCK_DATE)) {
+				elements = node.querySelectorAll('.' + MESSAGE_VIEW_SCROLL_INNER);
+				if (elements) {
+					elements.forEach(element => {
+						processTargetNode(element);
+					});
+				}
+			}
+
+			if (node.classList.contains(REACT_VIRTUALIZED_GRID)
+				|| node.classList.contains(MESSAGE_VIEW_SCROLL_INNER)
+				|| node.classList.contains(MESSAGE_CONTENT_WRAPPER)) {
+				processNodeElement(node);
+			}
 		}
 	}
 }
 
 function processNextSiblingNode(node) {
 	if (node && node.classList && node.classList.contains(MESSAGE_ACTION)) {
-		console.log('Processing next sibling node:', node);
 		processNodeElement(node);
 	}
 }
@@ -130,7 +147,7 @@ function processElementReactVirtualizedGrid(node) {
 
 function processElementMessageContentWrapper(node) {
 	if (node.classList.contains(MESSAGE_VIEW_SCROLL_INNER)) {
-		const elements = node.querySelectorAll(MESSAGE_CONTENT_WRAPPER);
+		const elements = node.querySelectorAll('.' + MESSAGE_CONTENT_WRAPPER);
 		if (elements) {
 			elements.forEach(element => {
 				if (!element.dataset.isNotFirstTime) {
@@ -180,149 +197,6 @@ function hideDigit(element) {
 }
 
 function showDigit(element) {
-	if (element && element.dataset.originalText) {
-		element.textContent = element.dataset.originalText;
-		element.dataset.originalText = '';
-	}
-}
-
-// const observer = new MutationObserver(watchDomChanges);
-// observer.observe(document.body, { childList: true, subtree: true });
-
-// document.body.addEventListener('mouseover', (e) => {
-// 	TAGS.forEach(({ wrapperSelector, targetSelector }) => {
-// 		if (wrapperSelector == MSG_ITEM) {
-// 			return;
-// 		}
-
-// 		const wrapper = e.target.closest(wrapperSelector);
-// 		if (!wrapper) {
-// 			return;
-// 		}
-
-// 		const shouldIgnore = WRAPPER_IGNORE.some(ignoreSel => wrapper.querySelector(ignoreSel));
-// 		if (shouldIgnore) {
-// 			return;
-// 		}
-
-// 		if (wrapper) {
-// 			wrapper.querySelectorAll(targetSelector).forEach(element => { un_mask(element); });
-// 		}
-// 	});
-// });
-
-// document.body.addEventListener('mouseout', (e) => {
-// 	TAGS.forEach(({ wrapperSelector, targetSelector }) => {
-// 		if (wrapperSelector == MSG_ITEM) {
-// 			return;
-// 		}
-
-// 		const wrapper = e.target.closest(wrapperSelector);
-// 		if (!wrapper) {
-// 			return;
-// 		}
-
-// 		const shouldIgnore = WRAPPER_IGNORE.some(ignoreSel => wrapper.querySelector(ignoreSel));
-// 		if (shouldIgnore) {
-// 			return;
-// 		}
-
-// 		if (wrapper) {
-// 			wrapper.querySelectorAll(targetSelector).forEach(element => { mask(element); });
-// 		}
-// 	});
-// });
-
-function watchDomChanges() {
-	let elements, element, selector, wrapper;
-	const ignoreSelector = WRAPPER_IGNORE.map(selector => `:not(${selector} *)`).join('');
-
-	TAGS.forEach(({ wrapperSelector, targetSelector }) => {
-		if (wrapperSelector) {
-			wrapper = document.querySelector(wrapperSelector);
-			if (wrapper && !wrapper.dataset.eventAttached) {
-				wrapper.addEventListener('mouseover', (e) => {
-					selector = `${targetSelector}${ignoreSelector}`;
-					element = e.target.closest(selector);
-					if (element && !element.dataset.maskHoverBound) {
-						mask(element);
-						element.dataset.maskHoverBound = true;
-					}
-				});
-				wrapper.addEventListener('mouseout', (e) => {
-					selector = `${targetSelector}${ignoreSelector}`;
-					element = e.target.closest(selector);
-					if (element && element.dataset.maskHoverBound) {
-						un_mask(element);
-						element.dataset.maskHoverBound = false;
-					}
-				});
-
-				wrapper.dataset.eventAttached = true;
-
-
-
-
-				if (targetSelector && targetSelector.length > 0) {
-					targetSelector.forEach(target => {
-						if (target) {
-							selector = `${wrapperSelector} ${target}${ignoreSelector}`;
-							elements = document.querySelectorAll(selector);
-							if (elements) {
-								elements.forEach(element => {
-									if (!element.dataset.maskHoverBound) {
-										mask(element);
-
-										element.dataset.maskHoverBound = true;
-										element.addEventListener('mouseover', (e) => { un_mask(e.target); });
-										element.addEventListener('mouseout', (e) => { mask(e.target); });
-									}
-								});
-							}
-						}
-					});
-				}
-			}
-		}
-	});
-
-	elements = document.querySelectorAll(`${MSG_ITEM} ${TRUNCATE}`);
-	if (elements) {
-		elements.forEach(element => {
-			if (!element.dataset.maskHoverBound) {
-				let length = 0;
-				if (element.classList.contains("conv-item-title__name")) {
-					length = 10;
-				} else if (element.classList.contains("conv-item-body")) {
-					length = 11;
-				}
-
-				if (length > 0) {
-					element.textContent = HIDE_DIGIT.repeat(length);
-					element.dataset.maskHoverBound = true;
-				}
-			}
-		});
-	}
-}
-
-function mask(element) {
-	if (element && !element.dataset.originalText) {
-		const length = element.classList.length;
-		if (length === 1
-			|| length === 2 && MENTION_NAME_CLICKABLE.every(cls => element.classList.contains(cls))
-			|| length === 2 && TRUNCATE_QUOTE_NAME.every(cls => element.classList.contains(cls))
-			|| length === 3 && TRUNCATE_QUOTE_NAME.every(cls => element.classList.contains(cls))) {
-			element.dataset.maskHoverBound = true;
-			element.dataset.originalText = element.textContent;
-
-			const length = element.textContent.length;
-			element.textContent = HIDE_DIGIT.repeat(length);
-		}
-	}
-}
-
-function un_mask(element) {
 	if (element && element.dataset.originalText) {
 		element.textContent = element.dataset.originalText;
 		element.dataset.originalText = '';
