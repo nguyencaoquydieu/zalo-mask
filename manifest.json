@@ -1,15 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Zalo Content Masker",
+  "name": "Zalo Web Content Masker",
   "version": "1.0",
-  "description": "Ẩn nội dung các thẻ cụ thể trên Zalo Web",
-  "permissions": ["scripting"],
+  "description": "Ẩn nội dung chat Zalo bằng ký tự • và hiện lại khi hover",
+  "permissions": ["scripting", "activeTab"],
   "content_scripts": [
     {
-      "matches": ["*://*.zalo.me/*"],
-      "js": ["content.js"],
-      "css": ["style.css"],
-      "run_at": "document_idle"
+      "matches": ["https://chat.zalo.me/*"],
+      "js": ["constants.js", "content-script.js"],
+      "css": ["style.css"]
     }
   ],
   "icons": {

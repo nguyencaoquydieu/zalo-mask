@@ -1,11 +1,26 @@
-.masked {
-  color: transparent !important;
-  position: relative;
+.masked-text {
+  transition: all 0.5s ease-in-out;
+  white-space: pre-wrap;
+  user-select: none;
 }
 
-.masked::before {
-  content: "*****";
-  color: white;
+.mask {
+  position: relative;
+  color: transparent;
+}
+
+.mask::before {
+  content: "•••";
+  color: black;
   position: absolute;
-  pointer-events: none;
+  left: 0;
+  top: 0;
+}
+
+.mask:hover {
+  color: black;
+}
+
+.mask:hover::before {
+  content: attr(data-text);
 }

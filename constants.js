@@ -1,0 +1,1 @@
+const MASK_CHAR = '•';
