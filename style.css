@@ -9,3 +9,13 @@
   position: absolute;
   pointer-events: none;
 }
+
+.hidden-text {
+  filter: blur(5px) opacity(0%);
+  transition: color 0.2s ease, filter 0.2s ease;
+}
+
+.hidden-text:hover,
+.message-content-wrapper:hover .hidden-text {
+  filter: blur(0) opacity(100%);
+}
