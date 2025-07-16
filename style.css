@@ -1,11 +1,13 @@
-.masked {
-  color: transparent !important;
-  position: relative;
+.hidden-text {
+  filter: blur(5px) opacity(0%);
+  transition: filter 0.2s ease;
 }
 
-.masked::before {
-  content: "*****";
-  color: white;
-  position: absolute;
-  pointer-events: none;
+.hidden-text:hover,
+.message-content-wrapper:hover .hidden-text,
+.msg-item:hover .hidden-text,
+.chat-group-topic-outer:hover .hidden-text,
+.threadChat.rel.flx.flx-1.flx-al-c.group:hover .hidden-text {
+  filter: blur(0) opacity(100%);
+  transition: filter 0.35s ease;
 }
